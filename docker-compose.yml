@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres
+    container_name: gopher-db
+    environment:
+      POSTGRES_DB: social
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret_password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+
+volumes:
+  db-data:
