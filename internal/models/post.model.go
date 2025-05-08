@@ -1,5 +1,11 @@
 package models
 
+type CreatePostDto struct {
+	Title   string   `json:"title"`
+	Content string   `json:"content"`
+	Tags    []string `json:"tags"`
+}
+
 type Post struct {
 	Id        int64    `json:"id"`
 	Title     string   `json:"title"`

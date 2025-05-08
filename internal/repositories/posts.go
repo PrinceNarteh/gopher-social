@@ -24,7 +24,8 @@ func (r *PostRespository) Create(ctx context.Context, post *models.Post) error {
 		query,
 		post.Title,
 		post.Content,
-		pq.Array(post.Tags), post.UserId,
+		pq.Array(post.Tags),
+		post.UserId,
 	).Scan(
 		&post.Id,
 		&post.CreatedAt,
