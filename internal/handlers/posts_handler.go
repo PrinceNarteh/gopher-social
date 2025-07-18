@@ -4,20 +4,18 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/PrinceNarteh/social/internal/middleware"
 	"github.com/PrinceNarteh/social/internal/models"
 	"github.com/PrinceNarteh/social/internal/store"
 	"github.com/PrinceNarteh/social/internal/utils"
 )
 
+type postKey string
+
+const postCtx postKey = "post"
+
 type PostHandler struct {
 	store *store.Storage
-}
-
-func getPostFromCtx(r *http.Request) *models.Post {
-	if post, ok := r.Context().Value("post").(*models.Post); ok {
-		return post
-	}
-	return nil
 }
 
 func (h *PostHandler) CreatePostHandler(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +59,7 @@ func (h *PostHandler) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	post := getPostFromCtx(r)
+	post := middleware.GetPostFromCtx(r)
 
 	comments, err := h.store.Comment.GetByPostID(ctx, postId)
 	if err != nil {
