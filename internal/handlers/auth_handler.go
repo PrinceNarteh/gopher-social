@@ -3,7 +3,6 @@ package handlers
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/PrinceNarteh/social/internal/models"
@@ -33,7 +32,7 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteResponse(w, http.StatusCreated, loginDto)
+	utils.WriteResponse(w, r, http.StatusCreated, loginDto)
 }
 
 func (h *AuthHandler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -53,7 +52,6 @@ func (h *AuthHandler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	emailExists, err := h.store.User.FindByEmail(ctx, user.Email)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		fmt.Println(errors.Is(err, sql.ErrNoRows))
 		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
@@ -76,8 +74,5 @@ func (h *AuthHandler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := utils.WriteResponse(w, http.StatusCreated, user); err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
+	utils.WriteResponse(w, r, http.StatusCreated, user)
 }

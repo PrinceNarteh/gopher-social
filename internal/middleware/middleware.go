@@ -10,12 +10,12 @@ import (
 )
 
 type Middleware struct {
-	store *store.Storage
+	Store *store.Storage
 }
 
 func NewMiddleware(store *store.Storage) *Middleware {
 	return &Middleware{
-		store: store,
+		Store: store,
 	}
 }
 
@@ -28,7 +28,7 @@ func (s *Middleware) PostsContextMiddlware(next http.Handler) http.Handler {
 		}
 
 		ctx := r.Context()
-		post, err := s.store.Post.GetByID(ctx, postId)
+		post, err := s.Store.Post.GetByID(ctx, postId)
 		if err != nil {
 			switch {
 			case errors.Is(err, store.ErrNotFound):

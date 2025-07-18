@@ -14,7 +14,5 @@ func (app *application) healthCheckHandler(w http.ResponseWriter, r *http.Reques
 		"version": config.Envs.AppConfig.Version,
 	}
 
-	if err := utils.WriteResponse(w, http.StatusOK, data); err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
-	}
+	utils.WriteResponse(w, r, http.StatusOK, data)
 }

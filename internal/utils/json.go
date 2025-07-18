@@ -37,11 +37,13 @@ func writeJSON(w http.ResponseWriter, statusCode int, payload responseType) erro
 	return json.NewEncoder(w).Encode(payload)
 }
 
-func WriteResponse(w http.ResponseWriter, statusCode int, payload any) error {
-	return writeJSON(w, statusCode, responseType{
+func WriteResponse(w http.ResponseWriter, r *http.Request, statusCode int, payload any) {
+	if err := writeJSON(w, statusCode, responseType{
 		Status: "success",
 		Data:   payload,
-	})
+	}); err != nil {
+		InternalServerError(w, r, err)
+	}
 }
 
 func WriteError(w http.ResponseWriter, statusCode int, payload any) error {

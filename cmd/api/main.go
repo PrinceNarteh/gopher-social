@@ -16,8 +16,8 @@ func main() {
 	}
 
 	store := store.NewStorage(db)
-	handlers := handlers.NewHandlers(store)
 	middleware.NewMiddleware(store)
+	handlers := handlers.NewHandlers(store)
 
 	app := NewApplication()
 	r := app.mount()

@@ -40,9 +40,7 @@ func (h *PostHandler) CreatePostHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if err := utils.WriteResponse(w, http.StatusCreated, payload); err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err.Error())
-	}
+	utils.WriteResponse(w, r, http.StatusCreated, payload)
 }
 
 func (h *PostHandler) GetAllPostsHandler(w http.ResponseWriter, r *http.Request) {
@@ -53,9 +51,7 @@ func (h *PostHandler) GetAllPostsHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err := utils.WriteResponse(w, http.StatusCreated, posts); err != nil {
-		utils.InternalServerError(w, r, err)
-	}
+	utils.WriteResponse(w, r, http.StatusCreated, posts)
 }
 
 func (h *PostHandler) GetPostHandler(w http.ResponseWriter, r *http.Request) {
@@ -66,6 +62,7 @@ func (h *PostHandler) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	post := getPostFromCtx(r)
+
 	comments, err := h.store.Comment.GetByPostID(ctx, postId)
 	if err != nil {
 		utils.InternalServerError(w, r, err)
@@ -74,9 +71,7 @@ func (h *PostHandler) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	post.Comments = comments
 
-	if err := utils.WriteResponse(w, http.StatusCreated, post); err != nil {
-		utils.InternalServerError(w, r, err)
-	}
+	utils.WriteResponse(w, r, http.StatusCreated, post)
 }
 
 func (h *PostHandler) UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
@@ -92,9 +87,7 @@ func (h *PostHandler) UpdatePostHandler(w http.ResponseWriter, r *http.Request) 
 	// 	return
 	// }
 
-	if err := utils.WriteResponse(w, http.StatusOK, postId); err != nil {
-		utils.InternalServerError(w, r, err)
-	}
+	utils.WriteResponse(w, r, http.StatusOK, postId)
 }
 
 func (h *PostHandler) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
@@ -115,7 +108,5 @@ func (h *PostHandler) DeletePostHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if err := utils.WriteResponse(w, http.StatusOK, "posts deleted successfully"); err != nil {
-		utils.InternalServerError(w, r, err)
-	}
+	utils.WriteResponse(w, r, http.StatusOK, "posts deleted successfully")
 }

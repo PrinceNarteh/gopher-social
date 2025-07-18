@@ -23,6 +23,8 @@ func (app *application) initRoutes(r *chi.Mux, h *handlers.Handler) {
 			r.Post("/", h.Post.CreatePostHandler)
 
 			r.Route("/{postId}", func(r chi.Router) {
+				r.Use(h.Middleware.PostsContextMiddlware)
+
 				r.Get("/", h.Post.GetPostHandler)
 				r.Patch("/", h.Post.UpdatePostHandler)
 				r.Delete("/", h.Post.DeletePostHandler)
