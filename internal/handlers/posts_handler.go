@@ -73,19 +73,33 @@ func (h *PostHandler) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PostHandler) UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
-	postId, err := utils.GetURLParamAsInt(r, "postId")
-	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "invalid post ID")
+	post := middleware.GetPostFromCtx(r)
+
+	var payload models.UpdatePostDto
+	if err := utils.ParseJSON(w, r, &payload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	// var payload *models.Post
-	// if err := utils.ParseJSON(w, r, &payload); err != nil {
-	// 	utils.WriteError(w, http.StatusBadRequest, err.Error())
-	// 	return
-	// }
+	if err := utils.ValidateStruct(payload); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
 
-	utils.WriteResponse(w, r, http.StatusOK, postId)
+	if payload.Title != nil {
+		post.Title = *payload.Title
+	}
+
+	if payload.Content != nil {
+		post.Content = *payload.Content
+	}
+
+	if err := h.store.Post.Update(r.Context(), post); err != nil {
+		utils.InternalServerError(w, r, err)
+		return
+	}
+
+	utils.WriteResponse(w, r, http.StatusOK, post)
 }
 
 func (h *PostHandler) DeletePostHandler(w http.ResponseWriter, r *http.Request) {

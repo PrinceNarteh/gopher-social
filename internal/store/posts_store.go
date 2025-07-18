@@ -10,18 +10,21 @@ import (
 	"github.com/PrinceNarteh/social/internal/models"
 )
 
+var _ PostStore = (*postStore)(nil)
+
 type PostStore interface {
-	Create(context.Context, *models.Post) error
-	Delete(context.Context, int64) error
-	GetByID(ctx context.Context, id int64) (*models.Post, error)
 	GetAll(ctx context.Context) ([]models.Post, error)
+	GetByID(ctx context.Context, id int64) (*models.Post, error)
+	Create(context.Context, *models.Post) error
+	Update(context.Context, *models.Post) error
+	Delete(context.Context, int64) error
 }
 
-type PostStoreImpl struct {
+type postStore struct {
 	db *sql.DB
 }
 
-func (s *PostStoreImpl) Create(ctx context.Context, post *models.Post) error {
+func (s *postStore) Create(ctx context.Context, post *models.Post) error {
 	query := `
 		INSERT INTO posts 
 		(title, content, tags, user_id)
@@ -46,7 +49,7 @@ func (s *PostStoreImpl) Create(ctx context.Context, post *models.Post) error {
 	return nil
 }
 
-func (s *PostStoreImpl) GetAll(ctx context.Context) ([]models.Post, error) {
+func (s *postStore) GetAll(ctx context.Context) ([]models.Post, error) {
 	query := `SELECT id, title, content, tags, user_id, created_at, updated_at FROM posts`
 
 	rows, err := s.db.QueryContext(ctx, query)
@@ -75,7 +78,7 @@ func (s *PostStoreImpl) GetAll(ctx context.Context) ([]models.Post, error) {
 	return posts, nil
 }
 
-func (s *PostStoreImpl) GetByID(ctx context.Context, id int64) (*models.Post, error) {
+func (s *postStore) GetByID(ctx context.Context, id int64) (*models.Post, error) {
 	query := `
 		SELECT id, title, content, tags, user_id, created_at, updated_at
 		FROM posts 
@@ -105,7 +108,29 @@ func (s *PostStoreImpl) GetByID(ctx context.Context, id int64) (*models.Post, er
 	return post, nil
 }
 
-func (s *PostStoreImpl) Delete(ctx context.Context, postId int64) error {
+func (s *postStore) Update(ctx context.Context, post *models.Post) error {
+	query := `
+		UPDATE posts
+		SET title = $1, content = $2
+		WHERE id = $3
+	`
+
+	res, err := s.db.ExecContext(ctx, query, post.Title, post.Content, post.ID)
+	if err != nil {
+		return err
+	}
+
+	if rows, err := res.RowsAffected(); err != nil {
+		if rows == 0 {
+			return ErrNotFound
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (s *postStore) Delete(ctx context.Context, postId int64) error {
 	query := `DELETE FROM posts WHERE id = $1`
 
 	res, err := s.db.ExecContext(ctx, query, postId)

@@ -10,3 +10,8 @@ type Post struct {
 	CreatedAt string     `json:"createdAt,omitempty"`
 	UpdatedAt string     `json:"updatedAt,omitempty"`
 }
+
+type UpdatePostDto struct {
+	Title   *string `json:"title,omitempty"`
+	Content *string `json:"content"`
+}

@@ -18,9 +18,10 @@ type responseType struct {
 }
 
 func ParseJSON(w http.ResponseWriter, r *http.Request, payload any) error {
-	if r.Body == nil {
-		return fmt.Errorf("error")
+	if r.ContentLength == 0 {
+		return fmt.Errorf("request body is not present")
 	}
+	defer r.Body.Close()
 
 	maxBytesReader := 1_048_576
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytesReader))

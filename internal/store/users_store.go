@@ -7,16 +7,18 @@ import (
 	"github.com/PrinceNarteh/social/internal/models"
 )
 
+var _ UserStore = (*userStore)(nil)
+
 type UserStore interface {
 	Create(context.Context, *models.User) error
 	FindByEmail(context.Context, string) (*models.User, error)
 }
 
-type UserStoreImpl struct {
+type userStore struct {
 	db *sql.DB
 }
 
-func (store *UserStoreImpl) Create(ctx context.Context, user *models.User) error {
+func (store *userStore) Create(ctx context.Context, user *models.User) error {
 	query := `
 		INSERT INTO 
 		users (first_name, last_name, username, email, password)
@@ -43,7 +45,7 @@ func (store *UserStoreImpl) Create(ctx context.Context, user *models.User) error
 	return nil
 }
 
-func (store *UserStoreImpl) FindByEmail(ctx context.Context, email string) (*models.User, error) {
+func (store *userStore) FindByEmail(ctx context.Context, email string) (*models.User, error) {
 	query := `
 		SELECT * FROM users WHERE email = $1
 	`
