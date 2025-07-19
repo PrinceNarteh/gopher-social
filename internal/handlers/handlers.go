@@ -6,15 +6,17 @@ import (
 )
 
 type Handler struct {
-	Post       *PostHandler
 	Auth       *AuthHandler
+	Post       *PostHandler
+	User       *UserHandler
 	Middleware *middleware.Middleware
 }
 
 func NewHandlers(store *store.Storage) *Handler {
 	return &Handler{
-		Post:       &PostHandler{store: store},
 		Auth:       &AuthHandler{store: store},
+		Post:       &PostHandler{store: store},
+		User:       &UserHandler{store: store},
 		Middleware: &middleware.Middleware{Store: store},
 	}
 }

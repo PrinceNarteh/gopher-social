@@ -88,7 +88,7 @@ func generateUsers(numOfUsers int) []*models.User {
 		users[i] = &models.User{
 			FirstName: firstName,
 			LastName:  lastName,
-			Username:  faker.Username(),
+			Username:  fmt.Sprintf("%s%s", firstName, lastName),
 			Email: fmt.Sprintf(
 				"%s.%s@%s",
 				strings.ToLower(firstName),

@@ -10,8 +10,11 @@ import (
 var _ UserStore = (*userStore)(nil)
 
 type UserStore interface {
-	Create(context.Context, *models.User) error
+	FindById(context.Context, int64) (*models.User, error)
 	FindByEmail(context.Context, string) (*models.User, error)
+	Create(context.Context, *models.User) error
+	Update(context.Context, *models.UpdateUserDto) error
+	Delete(context.Context, int64) error
 }
 
 type userStore struct {
@@ -48,9 +51,7 @@ func (store *userStore) Create(ctx context.Context, user *models.User) error {
 	return nil
 }
 
-func (store *userStore) FindByEmail(ctx context.Context, email string) (*models.User, error) {
-	query := `SELECT * FROM users WHERE email = $1`
-
+func (store *userStore) findUser(ctx context.Context, query string, args ...any) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
@@ -58,7 +59,7 @@ func (store *userStore) FindByEmail(ctx context.Context, email string) (*models.
 	if err := store.db.QueryRowContext(
 		ctx,
 		query,
-		email,
+		args...,
 	).Scan(
 		&user.ID,
 		&user.FirstName,
@@ -73,4 +74,39 @@ func (store *userStore) FindByEmail(ctx context.Context, email string) (*models.
 	}
 
 	return user, nil
+}
+
+func (store *userStore) FindById(ctx context.Context, id int64) (*models.User, error) {
+	query := `
+		SELECT id, first_name, last_name, username, email, password, created_at, updated_at 
+		FROM users 
+		WHERE id = $1
+	`
+	return store.findUser(ctx, query, id)
+}
+
+func (store *userStore) FindByEmail(ctx context.Context, email string) (*models.User, error) {
+	query := `
+		SELECT id, first_name, last_name, username, email, password, created_at, updated_at 
+		FROM users 
+		WHERE email = $1
+	`
+	return store.findUser(ctx, query, email)
+}
+
+func (store *userStore) Update(ctx context.Context, payload *models.UpdateUserDto) error {
+	query := `
+	UPADATE users
+	SET first_name, last_name, username
+	VALUES $1, $2, $3
+	`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+	store.db.ExecContext(ctx, query)
+
+	return nil
+}
+
+func (store *userStore) Delete(context.Context, int64) error {
+	return nil
 }

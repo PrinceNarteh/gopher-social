@@ -30,5 +30,14 @@ func (app *application) initRoutes(r *chi.Mux, h *handlers.Handler) {
 				r.Delete("/", h.Post.DeletePostHandler)
 			})
 		})
+
+		// posts routes
+		r.Route("/users", func(r chi.Router) {
+			r.Route("/{userId}", func(r chi.Router) {
+				r.Get("/", h.User.GetUserHandler)
+				r.Patch("/", h.User.UpdateUserHandler)
+				r.Delete("/", h.User.DeleteUserHandler)
+			})
+		})
 	})
 }

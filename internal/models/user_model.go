@@ -6,7 +6,13 @@ type User struct {
 	LastName  string `json:"lastName"     validate:"required"`
 	Username  string `json:"username"     validate:"required"`
 	Email     string `json:"email"        validate:"required,email"`
-	Password  string `json:"password"     validate:"required,min=6"`
+	Password  string `json:"-"            validate:"required,min=6"`
 	CreatedAt string `json:"createdAt"`
 	UpdatedAt string `json:"updatedAt"`
+}
+
+type UpdateUserDto struct {
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Username  string `json:"username"`
 }
