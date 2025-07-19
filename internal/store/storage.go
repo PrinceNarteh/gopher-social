@@ -3,9 +3,13 @@ package store
 import (
 	"database/sql"
 	"errors"
+	"time"
 )
 
-var ErrNotFound = errors.New("record not found")
+var (
+	ErrNotFound          = errors.New("record not found")
+	QueryTimeoutDuration = time.Second * 5
+)
 
 type Storage struct {
 	Post    PostStore

@@ -31,6 +31,9 @@ func (s *postStore) Create(ctx context.Context, post *models.Post) error {
 		VALUES ($1, $2, $3, $4) RETURNING id, created_at, updated_at
 	`
 
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
 	if err := s.db.QueryRowContext(
 		ctx,
 		query,
@@ -51,6 +54,9 @@ func (s *postStore) Create(ctx context.Context, post *models.Post) error {
 
 func (s *postStore) GetAll(ctx context.Context) ([]models.Post, error) {
 	query := `SELECT id, title, content, tags, user_id, created_at, updated_at FROM posts`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
 
 	rows, err := s.db.QueryContext(ctx, query)
 	if err != nil {
@@ -84,6 +90,8 @@ func (s *postStore) GetByID(ctx context.Context, id int64) (*models.Post, error)
 		FROM posts 
 		WHERE id = $1
 	`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
 
 	post := new(models.Post)
 	if err := s.db.QueryRowContext(
@@ -117,6 +125,9 @@ func (s *postStore) Update(ctx context.Context, post *models.Post) error {
 		RETURNING version
 	`
 
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
 	err := s.db.QueryRowContext(ctx, query, post.Title, post.Content, post.ID).Scan(&post.Versoin)
 	if err != nil {
 		switch {
@@ -132,6 +143,9 @@ func (s *postStore) Update(ctx context.Context, post *models.Post) error {
 
 func (s *postStore) Delete(ctx context.Context, postId int64) error {
 	query := `DELETE FROM posts WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
 
 	res, err := s.db.ExecContext(ctx, query, postId)
 	if err != nil {

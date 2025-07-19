@@ -26,6 +26,9 @@ func (store *userStore) Create(ctx context.Context, user *models.User) error {
 		RETURNING id, created_at, updated_at
 	`
 
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
 	if err := store.db.QueryRowContext(
 		ctx,
 		query,
@@ -46,9 +49,10 @@ func (store *userStore) Create(ctx context.Context, user *models.User) error {
 }
 
 func (store *userStore) FindByEmail(ctx context.Context, email string) (*models.User, error) {
-	query := `
-		SELECT * FROM users WHERE email = $1
-	`
+	query := `SELECT * FROM users WHERE email = $1`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
 
 	user := new(models.User)
 	if err := store.db.QueryRowContext(
