@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"database/sql"
 	"net/http"
 
 	"github.com/PrinceNarteh/social/internal/store"
@@ -21,12 +20,7 @@ func (h *UserHandler) GetUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.store.User.FindById(r.Context(), userId)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			utils.WriteError(w, http.StatusNotFound, store.ErrNotFound.Error())
-		default:
-			utils.InternalServerError(w, r, err)
-		}
+		utils.WriteError(w, http.StatusNotFound, store.ErrNotFound.Error())
 		return
 	}
 

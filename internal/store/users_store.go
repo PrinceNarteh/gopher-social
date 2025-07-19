@@ -70,7 +70,12 @@ func (store *userStore) findUser(ctx context.Context, query string, args ...any)
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	); err != nil {
-		return nil, err
+		switch err {
+		case sql.ErrNoRows:
+			return nil, ErrNotFound
+		default:
+			return nil, err
+		}
 	}
 
 	return user, nil
