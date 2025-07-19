@@ -80,7 +80,7 @@ func (s *postStore) GetAll(ctx context.Context) ([]models.Post, error) {
 
 func (s *postStore) GetByID(ctx context.Context, id int64) (*models.Post, error) {
 	query := `
-		SELECT id, title, content, tags, user_id, created_at, updated_at
+		SELECT id, title, content, tags, user_id, version, created_at, updated_at
 		FROM posts 
 		WHERE id = $1
 	`
@@ -96,6 +96,7 @@ func (s *postStore) GetByID(ctx context.Context, id int64) (*models.Post, error)
 		&post.Content,
 		pq.Array(&post.Tags),
 		&post.UserID,
+		&post.Versoin,
 		&post.CreatedAt,
 		&post.UpdatedAt,
 	); err != nil {
@@ -111,20 +112,19 @@ func (s *postStore) GetByID(ctx context.Context, id int64) (*models.Post, error)
 func (s *postStore) Update(ctx context.Context, post *models.Post) error {
 	query := `
 		UPDATE posts
-		SET title = $1, content = $2
-		WHERE id = $3
+		SET title = $1, content = $2, version = version + 1
+		WHERE id = $3 and version $4
+		RETURNING version
 	`
 
-	res, err := s.db.ExecContext(ctx, query, post.Title, post.Content, post.ID)
+	err := s.db.QueryRowContext(ctx, query, post.Title, post.Content, post.ID).Scan(&post.Versoin)
 	if err != nil {
-		return err
-	}
-
-	if rows, err := res.RowsAffected(); err != nil {
-		if rows == 0 {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
 			return ErrNotFound
+		default:
+			return err
 		}
-		return err
 	}
 
 	return nil

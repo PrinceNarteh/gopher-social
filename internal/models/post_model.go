@@ -7,6 +7,7 @@ type Post struct {
 	UserID    int64      `json:"userId"              validate:"required,gte=1"`
 	Tags      []string   `json:"tags"                validate:"required"`
 	Comments  *[]Comment `json:"comments"`
+	Versoin   int        `json:"version"`
 	CreatedAt string     `json:"createdAt,omitempty"`
 	UpdatedAt string     `json:"updatedAt,omitempty"`
 }
