@@ -18,6 +18,10 @@ migration-down:
 # 	@migrate -path=$(MIGRATION_PATH) -database=$(DB_ADDR) force $(filter-out $@, $(MAKECMDGOALS))
 
 
-.PHONE: force-clean
+.PHONY: force-clean
 force-clean:
 	@migrate -path=$(MIGRATION_PATH) -database=$(DB_ADDR) force 3
+
+.PHONY: seed
+seed:
+	@go run cmd/migrate/seed/main.go

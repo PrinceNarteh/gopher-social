@@ -10,6 +10,7 @@ import (
 var _ CommentStore = (*commentStore)(nil)
 
 type CommentStore interface {
+	Create(context.Context, *models.Comment) error
 	GetByPostID(context.Context, int64) (*[]models.Comment, error)
 }
 
@@ -54,4 +55,29 @@ func (store *commentStore) GetByPostID(ctx context.Context, postID int64) (*[]mo
 	}
 
 	return &comments, nil
+}
+
+func (s *commentStore) Create(ctx context.Context, comment *models.Comment) error {
+	query := `
+		INSERT INTO comments (post_id, user_id, content)
+		VALUES ($1, $2, $3)
+		RETURNING id, created_at
+	`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	if err := s.db.QueryRowContext(
+		ctx,
+		query,
+		comment.PostID,
+		comment.UserID,
+		comment.Content,
+	).Scan(
+		&comment.ID,
+		&comment.CreatedAt,
+	); err != nil {
+		return err
+	}
+
+	return nil
 }
