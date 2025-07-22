@@ -14,7 +14,7 @@ type postKey string
 
 const postCtx postKey = "post"
 
-func (s *Middleware) PostsContextMiddlware(next http.Handler) http.Handler {
+func (s *Middleware) PostContextMiddlware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		postId, err := utils.GetURLParamAsInt(r, "postId")
 		if err != nil {

@@ -17,26 +17,32 @@ func (app *application) initRoutes(r *chi.Mux, h *handlers.Handler) {
 			r.Post("/register", h.Auth.RegisterHandler)
 		})
 
+		// users routes
+		r.Route("/users", func(r chi.Router) {
+			r.Route("/{userId}", func(r chi.Router) {
+				r.Use(h.Middleware.UserContextMiddleware)
+
+				r.Get("/", h.User.GetUserHandler)
+				r.Patch("/", h.User.UpdateUserHandler)
+				r.Delete("/", h.User.DeleteUserHandler)
+
+				// follow and unfollow
+				r.Put("/follow", h.User.FollowHandler)
+				r.Put("/unfollow", h.User.UnfollowHandler)
+			})
+		})
+
 		// posts routes
 		r.Route("/posts", func(r chi.Router) {
 			r.Get("/", h.Post.GetAllPostsHandler)
 			r.Post("/", h.Post.CreatePostHandler)
 
 			r.Route("/{postId}", func(r chi.Router) {
-				r.Use(h.Middleware.PostsContextMiddlware)
+				r.Use(h.Middleware.PostContextMiddlware)
 
 				r.Get("/", h.Post.GetPostHandler)
 				r.Patch("/", h.Post.UpdatePostHandler)
 				r.Delete("/", h.Post.DeletePostHandler)
-			})
-		})
-
-		// posts routes
-		r.Route("/users", func(r chi.Router) {
-			r.Route("/{userId}", func(r chi.Router) {
-				r.Get("/", h.User.GetUserHandler)
-				r.Patch("/", h.User.UpdateUserHandler)
-				r.Delete("/", h.User.DeleteUserHandler)
 			})
 		})
 	})

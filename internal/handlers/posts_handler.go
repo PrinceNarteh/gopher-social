@@ -53,15 +53,10 @@ func (h *PostHandler) GetAllPostsHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *PostHandler) GetPostHandler(w http.ResponseWriter, r *http.Request) {
-	postId, err := utils.GetURLParamAsInt(r, "postId")
-	if err != nil {
-		utils.WriteError(w, http.StatusBadRequest, "invalid post ID")
-	}
-
 	ctx := r.Context()
 	post := middleware.GetPostFromCtx(r)
 
-	comments, err := h.store.Comment.GetByPostID(ctx, postId)
+	comments, err := h.store.Comment.GetByPostID(ctx, post.ID)
 	if err != nil {
 		utils.InternalServerError(w, r, err)
 		return
@@ -69,7 +64,7 @@ func (h *PostHandler) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	post.Comments = comments
 
-	utils.WriteResponse(w, r, http.StatusCreated, post)
+	utils.WriteResponse(w, r, http.StatusOK, post)
 }
 
 func (h *PostHandler) UpdatePostHandler(w http.ResponseWriter, r *http.Request) {
