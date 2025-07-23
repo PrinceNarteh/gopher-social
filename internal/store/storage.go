@@ -23,6 +23,6 @@ func NewStorage(db *sql.DB) *Storage {
 		Post:     &postStore{db: db},
 		User:     &userStore{db: db},
 		Comment:  &commentStore{db: db},
-		Follower: &followStore{db: db},
+		Follower: &followerStore{db: db},
 	}
 }

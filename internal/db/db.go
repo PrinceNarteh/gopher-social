@@ -6,8 +6,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/PrinceNarteh/social/internal/config"
 	_ "github.com/lib/pq"
+
+	"github.com/PrinceNarteh/social/internal/config"
 )
 
 func InitDB() (*sql.DB, error) {
@@ -18,7 +19,7 @@ func InitDB() (*sql.DB, error) {
 
 	db.SetMaxOpenConns(config.Envs.DBConfig.DBMaxOpenConns)
 	db.SetMaxIdleConns(config.Envs.DBConfig.DBMaxIdleConns)
-	
+
 	duration, err := time.ParseDuration(config.Envs.DBConfig.DBMaxIdleTime)
 	if err != nil {
 		return nil, err
