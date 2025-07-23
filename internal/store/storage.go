@@ -12,17 +12,19 @@ var (
 )
 
 type Storage struct {
+	Comment  CommentStore
+	Feed     FeedStore
+	Follower FollowerStore
 	Post     PostStore
 	User     UserStore
-	Comment  CommentStore
-	Follower FollowerStore
 }
 
 func NewStorage(db *sql.DB) *Storage {
 	return &Storage{
+		Comment:  &commentStore{db: db},
+		Feed:     &feedStore{db: db},
+		Follower: &followerStore{db: db},
 		Post:     &postStore{db: db},
 		User:     &userStore{db: db},
-		Comment:  &commentStore{db: db},
-		Follower: &followerStore{db: db},
 	}
 }

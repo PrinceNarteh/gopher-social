@@ -9,6 +9,7 @@ type Handler struct {
 	Auth       *AuthHandler
 	Post       *PostHandler
 	User       *UserHandler
+	Feed       *FeedHandler
 	Middleware *middleware.Middleware
 }
 

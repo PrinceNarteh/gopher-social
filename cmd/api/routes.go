@@ -30,6 +30,10 @@ func (app *application) initRoutes(r *chi.Mux, h *handlers.Handler) {
 				r.Put("/follow", h.User.FollowHandler)
 				r.Put("/unfollow", h.User.UnfollowHandler)
 			})
+
+			r.Group(func(r chi.Router) {
+				r.Get("/feed", h.Feed.GetUserFeedHandler)
+			})
 		})
 
 		// posts routes

@@ -2,12 +2,14 @@
 package models
 
 type Models struct {
+	Feed *Feed
 	Post *Post
 	User *User
 }
 
 func NewModels() *Models {
 	return &Models{
+		Feed: &Feed{},
 		Post: &Post{},
 		User: &User{},
 	}
