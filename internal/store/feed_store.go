@@ -12,14 +12,18 @@ import (
 var _ FeedStore = (*feedStore)(nil)
 
 type FeedStore interface {
-	GetUserFeed(context.Context, int64) ([]models.Feed, error)
+	GetUserFeed(context.Context, int64, models.PaginatedFeedQuery) ([]models.Feed, error)
 }
 
 type feedStore struct {
 	db *sql.DB
 }
 
-func (store *feedStore) GetUserFeed(ctx context.Context, userId int64) ([]models.Feed, error) {
+func (store *feedStore) GetUserFeed(
+	ctx context.Context,
+	userId int64,
+	fq models.PaginatedFeedQuery,
+) ([]models.Feed, error) {
 	query := `
 		SELECT
 			p.id, p.user_id, p.title, p.content, p.created_at, p.version, p.tags,
@@ -31,13 +35,14 @@ func (store *feedStore) GetUserFeed(ctx context.Context, userId int64) ([]models
 		JOIN followers AS f ON f.follwer_id = p.user_id OR p.user_id = $1
 		WHERE f.user_id = 341 OR p.user_id = $1
 		GROUP BY p.id, u.username
-		ORDER BY p.created_at DESC
+		ORDER BY p.created_at $2
+		LIMIT $3 OFFSET $4
 	`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	rows, err := store.db.QueryContext(ctx, query, userId)
+	rows, err := store.db.QueryContext(ctx, query, userId, fq.Sort, fq.Limit, fq.Offset)
 	if err != nil {
 		return nil, err
 	}
