@@ -5,9 +5,10 @@ type Post struct {
 	Title     string     `json:"title"               validate:"required"`
 	Content   string     `json:"content"             validate:"required"`
 	UserID    int64      `json:"userId"              validate:"required,gte=1"`
+	Versoin   int        `json:"version"`
 	Tags      []string   `json:"tags"                validate:"required"`
 	Comments  *[]Comment `json:"comments"`
-	Versoin   int        `json:"version"`
+	User      User       `json:"user"`
 	CreatedAt string     `json:"createdAt,omitempty"`
 	UpdatedAt string     `json:"updatedAt,omitempty"`
 }
