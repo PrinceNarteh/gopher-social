@@ -33,7 +33,9 @@ func (store *feedStore) GetUserFeed(
 		LEFT JOIN comments AS c ON c.post_id = p.id
 		LEFT JOIN users AS u ON p.user_id = u.id
 		JOIN followers AS f ON f.follwer_id = p.user_id OR p.user_id = $1
-		WHERE f.user_id = 341 OR p.user_id = $1
+		WHERE f.user_id = $1 AND
+			(p.title ILIKE '%' || $5 || "%" OR p.content ILIKE '%' || $5 || '%') AND
+			(p.tags @> $6 OR $6 = '{}')
 		GROUP BY p.id, u.username
 		ORDER BY p.created_at $2
 		LIMIT $3 OFFSET $4
@@ -42,7 +44,16 @@ func (store *feedStore) GetUserFeed(
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	rows, err := store.db.QueryContext(ctx, query, userId, fq.Sort, fq.Limit, fq.Offset)
+	rows, err := store.db.QueryContext(
+		ctx,
+		query,
+		userId,
+		fq.Sort,
+		fq.Limit,
+		fq.Offset,
+		fq.Search,
+		pq.Array(fq.Tags),
+	)
 	if err != nil {
 		return nil, err
 	}
