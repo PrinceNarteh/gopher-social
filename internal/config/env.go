@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 
@@ -11,7 +12,9 @@ import (
 var Envs = initConfig()
 
 func initConfig() *config {
-	godotenv.Load()
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("could not load .env file")
+	}
 
 	return &config{
 		AppConfig: appConfig{

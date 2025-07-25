@@ -9,6 +9,19 @@ import (
 	"github.com/PrinceNarteh/social/internal/store"
 )
 
+//	@title			GopherSocial API
+//	@description	API for GopherSocial, a social network gophers
+//	@termsOfService	http://swagger.io/terms/
+
+//	@contact.name	API Support
+//	@contact.url	http://www.swagger.io/support
+//	@contact.email	support@swagger.io
+
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host		petstore.swagger.io
+// @BasePath	/v1
 func main() {
 	db, err := db.InitDB()
 	if err != nil {
@@ -22,5 +35,5 @@ func main() {
 	app := NewApplication()
 	r := app.mount()
 	app.initRoutes(r, handlers)
-	app.run(r)
+	log.Fatal(app.run(r))
 }

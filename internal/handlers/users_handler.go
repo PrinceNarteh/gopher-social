@@ -32,7 +32,6 @@ func (h *UserHandler) DeleteUserHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *UserHandler) FollowHandler(w http.ResponseWriter, r *http.Request) {
-	userToFollow := getUserFromCtx(r)
 }
 
 func (h *UserHandler) UnfollowHandler(w http.ResponseWriter, r *http.Request) {}

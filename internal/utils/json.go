@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -21,7 +22,17 @@ func ParseJSON(w http.ResponseWriter, r *http.Request, payload any) error {
 	if r.ContentLength == 0 {
 		return fmt.Errorf("request body is not present")
 	}
-	defer r.Body.Close()
+
+	var err error
+	defer func() {
+		if closeErr := r.Body.Close(); closeErr != nil {
+			if err == nil {
+				err = fmt.Errorf("error closing response body: %w", closeErr)
+			} else {
+				err = fmt.Errorf("%w; error closing response body: %v", err, closeErr)
+			}
+		}
+	}()
 
 	maxBytesReader := 1_048_576
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytesReader))
@@ -47,12 +58,14 @@ func WriteResponse(w http.ResponseWriter, r *http.Request, statusCode int, paylo
 	}
 }
 
-func WriteError(w http.ResponseWriter, statusCode int, payload any) error {
-	return writeJSON(w, statusCode, responseType{
+func WriteError(w http.ResponseWriter, statusCode int, payload any) {
+	if err := writeJSON(w, statusCode, responseType{
 		Status: "error",
 		Error: &errorResponse{
 			Code: statusCode,
 			Msg:  payload,
 		},
-	})
+	}); err != nil {
+		log.Println(err)
+	}
 }

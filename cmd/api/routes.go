@@ -1,8 +1,12 @@
 package main
 
 import (
-	chi "github.com/go-chi/chi/v5"
+	"fmt"
 
+	chi "github.com/go-chi/chi/v5"
+	httpSwagger "github.com/swaggo/http-swagger"
+
+	"github.com/PrinceNarteh/social/internal/config"
 	"github.com/PrinceNarteh/social/internal/handlers"
 )
 
@@ -10,6 +14,10 @@ func (app *application) initRoutes(r *chi.Mux, h *handlers.Handler) {
 	r.Route("/api/v1", func(r chi.Router) {
 		// health check
 		r.Get("/health", app.healthCheckHandler)
+
+		// swagger
+		docsURL := fmt.Sprintf("%s/swagger/doc.json", config.Envs.AppConfig.Addr)
+		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsURL)))
 
 		// auth routes
 		r.Route("/auth", func(r chi.Router) {

@@ -10,10 +10,6 @@ import (
 	"github.com/PrinceNarteh/social/internal/utils"
 )
 
-type postKey string
-
-const postCtx postKey = "post"
-
 type PostHandler struct {
 	store *store.Storage
 }
