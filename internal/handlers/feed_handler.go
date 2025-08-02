@@ -12,6 +12,18 @@ type FeedHandler struct {
 	store *store.Storage
 }
 
+// GetUserFeedHandler godoc
+// @Summary      Get user feed
+// @Description  Get the feed for a user by their ID
+// @Tags         feed
+// @Accept       json
+// @Produce      json
+// @Param        id  path      int64  true  "User ID"
+// @Success      200 {object}  models.PaginatedFeedResponse
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404  {object}  httputil.HTTPError
+// @Failure      500  {object}  httputil.HTTPError
+// @Router       /feed/user/{id} [get]
 func (h *FeedHandler) GetUserFeedHandler(w http.ResponseWriter, r *http.Request) {
 	fq := models.PaginatedFeedQuery{
 		Limit:  20,

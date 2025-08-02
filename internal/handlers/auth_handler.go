@@ -19,6 +19,18 @@ type AuthHandler struct {
 	store *store.Storage
 }
 
+// LoginHandler godoc
+// @Summary      Log in user
+// @Description  Log in user with email and password
+// @Tags         accounts
+// @Accept       json
+// @Produce      json
+// @Param        loginDto  body      LoginDto  true  "Login DTO"
+// @Success      200 {object}  models.User
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404  {object}  httputil.HTTPError
+// @Failure      500  {object}  httputil.HTTPError
+// @Router       /auth/login [post]
 func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var loginDto LoginDto
 
@@ -35,6 +47,18 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	utils.WriteResponse(w, r, http.StatusCreated, loginDto)
 }
 
+// RegisterHandler godoc
+// @Summary      Register user
+// @Description  Register a new user with email and password
+// @Tags         accounts
+// @Accept       json
+// @Produce      json
+// @Param        user  body      models.User  true  "User DTO"
+// @Success      201 {object}  models.User
+// @Failure      400  {object}  httputil.HTTPError
+// @Failure      404  {object}  httputil.HTTPError
+// @Failure      500  {object}  httputil.HTTPError
+// @Router       /auth/register [post]
 func (h *AuthHandler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 
