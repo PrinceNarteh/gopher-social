@@ -1,5 +1,4 @@
 basePath: /v1
-host: petstore.swagger.io
 info:
   contact:
     email: support@swagger.io

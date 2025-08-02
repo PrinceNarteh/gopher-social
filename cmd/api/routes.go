@@ -6,7 +6,6 @@ import (
 	chi "github.com/go-chi/chi/v5"
 	httpSwagger "github.com/swaggo/http-swagger"
 
-	"github.com/PrinceNarteh/social/internal/config"
 	"github.com/PrinceNarteh/social/internal/handlers"
 )
 
@@ -16,7 +15,7 @@ func (app *application) initRoutes(r *chi.Mux, h *handlers.Handler) {
 		r.Get("/health", app.healthCheckHandler)
 
 		// swagger
-		docsURL := fmt.Sprintf("%s/swagger/doc.json", config.Envs.AppConfig.Addr)
+		docsURL := fmt.Sprintf("%s/swagger/doc.json", "4000")
 		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsURL)))
 
 		// auth routes
