@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/PrinceNarteh/social/internal/config"
 	"github.com/PrinceNarteh/social/internal/models"
 	"github.com/PrinceNarteh/social/internal/store"
 	"github.com/PrinceNarteh/social/internal/utils"
@@ -74,17 +75,6 @@ func (h *AuthHandler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	emailExists, err := h.store.User.FindByEmail(ctx, user.Email)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		utils.WriteError(w, http.StatusBadRequest, err)
-		return
-	}
-
-	if emailExists != nil {
-		utils.WriteError(w, http.StatusConflict, "email already in exists")
-		return
-	}
-
 	hashedPassword, err := utils.HashPassword(user.Password)
 	if err != nil {
 		utils.InternalServerError(w, r, err)
@@ -93,8 +83,15 @@ func (h *AuthHandler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	user.Password = hashedPassword
 
-	if err := h.store.User.Create(ctx, &user); err != nil {
-		utils.InternalServerError(w, r, err)
+	if err := h.store.User.CreateAndInvite(ctx, &user, "uuid", config.Envs.MailConfig.Exp); err != nil {
+		switch err {
+		case store.ErrDuplicateEmail:
+			utils.WriteError(w, http.StatusBadRequest, err)
+		case store.ErrDuplicateEmail:
+			utils.WriteError(w, http.StatusBadRequest, err)
+		default:
+			utils.InternalServerError(w, r, err)
+		}
 		return
 	}
 

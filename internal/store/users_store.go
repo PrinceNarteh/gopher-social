@@ -3,16 +3,24 @@ package store
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"time"
 
 	"github.com/PrinceNarteh/social/internal/models"
+)
+
+var (
+	ErrDuplicateEmail    = errors.New("a user with that email already exists")
+	ErrDuplicateUsername = errors.New("a user with that username already exists")
 )
 
 var _ UserStore = (*userStore)(nil)
 
 type UserStore interface {
+	Create(context.Context, *sql.Tx, *models.User) error
+	CreateAndInvite(context.Context, *models.User, string, time.Duration) error
 	FindById(context.Context, int64) (*models.User, error)
 	FindByEmail(context.Context, string) (*models.User, error)
-	Create(context.Context, *models.User) error
 	Update(context.Context, *models.UpdateUserDto) error
 	Delete(context.Context, int64) error
 }
@@ -21,7 +29,7 @@ type userStore struct {
 	db *sql.DB
 }
 
-func (store *userStore) Create(ctx context.Context, user *models.User) error {
+func (store *userStore) Create(ctx context.Context, tx *sql.Tx, user *models.User) error {
 	query := `
 		INSERT INTO 
 		users (first_name, last_name, username, email, password)
@@ -32,7 +40,7 @@ func (store *userStore) Create(ctx context.Context, user *models.User) error {
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	if err := store.db.QueryRowContext(
+	if err := tx.QueryRowContext(
 		ctx,
 		query,
 		user.FirstName,
@@ -45,10 +53,42 @@ func (store *userStore) Create(ctx context.Context, user *models.User) error {
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	); err != nil {
+		switch err.Error() {
+		case `pq: duplicate key value violates unique constraint "users_email_key"`:
+		case `pq: duplicate key value violates unique constraint "users_username_key"`:
+		default:
+			return err
+		}
+	}
+
+	return nil
+}
+
+func createUserInvitation(ctx context.Context, tx *sql.Tx, userId int64, token string, exp time.Duration) error {
+	query := `INSERT INTO user_invitations (user_id, token, expiry) VALUES ($1, $2, $3)`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	if _, err := tx.ExecContext(ctx, query, userId, token, time.Now().Add(exp)); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (store *userStore) CreateAndInvite(ctx context.Context, user *models.User, token string, exp time.Duration) error {
+	return withTx(store.db, ctx, func(tx *sql.Tx) error {
+		if err := store.Create(ctx, tx, user); err != nil {
+			return err
+		}
+
+		if err := createUserInvitation(ctx, tx, user.ID, token, exp); err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
 
 func (store *userStore) findUser(ctx context.Context, query string, args ...any) (*models.User, error) {
@@ -107,7 +147,9 @@ func (store *userStore) Update(ctx context.Context, payload *models.UpdateUserDt
 	`
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
-	store.db.ExecContext(ctx, query)
+	if _, err := store.db.ExecContext(ctx, query); err != nil {
+		return err
+	}
 
 	return nil
 }

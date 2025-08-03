@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -30,6 +31,9 @@ func initConfig() *config {
 			DBMaxOpenConns: getEnvInt("DB_MAX_OPEN_CONNS", 10),
 			DBMaxIdleConns: getEnvInt("DB_MAX_IDLE_CONNS", 10),
 			DBMaxIdleTime:  getEnvString("DB_MAX_IDLE_TIME", "10m"),
+		},
+		MailConfig: mailConfig{
+			Exp: time.Hour * 24 * 3, // 3 days
 		},
 	}
 }

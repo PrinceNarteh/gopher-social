@@ -1,8 +1,11 @@
 package config
 
+import "time"
+
 type config struct {
-	AppConfig appConfig
-	DBConfig  dbConfig
+	AppConfig  appConfig
+	DBConfig   dbConfig
+	MailConfig mailConfig
 }
 
 type appConfig struct {
@@ -16,4 +19,8 @@ type dbConfig struct {
 	DBMaxOpenConns int
 	DBMaxIdleConns int
 	DBMaxIdleTime  string
+}
+
+type mailConfig struct {
+	Exp time.Duration
 }
