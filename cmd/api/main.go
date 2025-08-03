@@ -7,6 +7,7 @@ import (
 	"github.com/PrinceNarteh/social/internal/handlers"
 	"github.com/PrinceNarteh/social/internal/middleware"
 	"github.com/PrinceNarteh/social/internal/store"
+	"github.com/PrinceNarteh/social/internal/utils"
 )
 
 //	@title			GopherSocial API
@@ -22,17 +23,23 @@ import (
 
 // @BasePath	/v1
 func main() {
+	// Initialize the database
 	db, err := db.InitDB()
 	if err != nil {
 		log.Panic(err)
 	}
 
+	// Initialize logger
+	utils.NewLogger()
+
+	// Initialize the store, middleware and handlers
 	store := store.NewStorage(db)
 	middleware.NewMiddleware(store)
 	handlers := handlers.NewHandlers(store)
 
+	// Initialize the application and mount routes
 	app := NewApplication()
 	r := app.mount()
 	app.initRoutes(r, handlers)
-	log.Fatal(app.run(r))
+	utils.Logger.Fatal(app.run(r))
 }

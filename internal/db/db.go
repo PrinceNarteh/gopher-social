@@ -9,6 +9,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/PrinceNarteh/social/internal/config"
+	"github.com/PrinceNarteh/social/internal/utils"
 )
 
 func InitDB() (*sql.DB, error) {
@@ -33,6 +34,6 @@ func InitDB() (*sql.DB, error) {
 		return nil, err
 	}
 
-	log.Println("database connection pool established successfully!")
+	utils.Logger.Info("database connection pool established successfully!")
 	return db, nil
 }

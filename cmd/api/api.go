@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"time"
 
@@ -9,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 
 	"github.com/PrinceNarteh/social/internal/config"
+	"github.com/PrinceNarteh/social/internal/utils"
 )
 
 type application struct{}
@@ -38,6 +38,6 @@ func (app *application) run(handler *chi.Mux) error {
 		IdleTimeout:  time.Minute,
 	}
 
-	log.Printf("server running on %s", config.Envs.AppConfig.Addr)
+	utils.Logger.Infof("server running on %s", config.Envs.AppConfig.Addr)
 	return srv.ListenAndServe()
 }
