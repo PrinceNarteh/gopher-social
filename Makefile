@@ -2,7 +2,7 @@ include .env
 MIGRATION_PATH=./cmd/migrate/migrations
 
 .PHONY: create-migrate
-migration:
+create-migrate:
 	@migrate create -seq -ext sql -dir $(MIGRATION_PATH) $(filter-out $@, $(MAKECMDGOALS))
 
 .PHONY: migration-up
@@ -20,7 +20,7 @@ migration-down:
 
 .PHONY: force-clean
 force-clean:
-	@migrate -path=$(MIGRATION_PATH) -database=$(DB_ADDR) force 3
+	@migrate -path=$(MIGRATION_PATH) -database=$(DB_ADDR) force 9
 
 .PHONY: seed
 seed:

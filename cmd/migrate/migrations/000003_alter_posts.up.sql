@@ -1,4 +1,8 @@
 ALTER TABLE
   posts
-ADD CONSTRAINT fk_user FOREIGN KEY (user_id)
-  REFERENCES users(id)
+DROP CONSTRAINT IF EXISTS fk_user;
+
+ALTER TABLE
+  posts
+ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id)
+
