@@ -3,6 +3,8 @@ package handlers
 import (
 	"net/http"
 
+	chi "github.com/go-chi/chi/v5"
+
 	"github.com/PrinceNarteh/social/internal/middleware"
 	"github.com/PrinceNarteh/social/internal/models"
 	"github.com/PrinceNarteh/social/internal/store"
@@ -18,6 +20,20 @@ func getUserFromCtx(r *http.Request) *models.User {
 		return user
 	}
 	return nil
+}
+
+func (h *UserHandler) ActivateUserHandler(w http.ResponseWriter, r *http.Request) {
+	token := chi.URLParam(r, "token")
+	if err := h.store.User.Activate(r.Context(), token); err != nil {
+		switch err {
+		case store.ErrNotFound:
+			utils.WriteError(w, http.StatusBadRequest, err)
+		default:
+			utils.InternalServerError(w, r, err)
+		}
+		return
+	}
+	utils.WriteResponse(w, r, http.StatusNoContent, "")
 }
 
 // GetUserHandler godoc

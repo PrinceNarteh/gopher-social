@@ -26,6 +26,8 @@ func (app *application) initRoutes(r *chi.Mux, h *handlers.Handler) {
 
 		// users routes
 		r.Route("/users", func(r chi.Router) {
+			r.Get("/activate/{token}", h.User.ActivateUserHandler)
+
 			r.Route("/{userId}", func(r chi.Router) {
 				r.Use(h.Middleware.UserContextMiddleware)
 

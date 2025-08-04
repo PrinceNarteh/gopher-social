@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"net/http"
 	"strconv"
 
@@ -16,4 +18,10 @@ func GetURLParamAsInt(r *http.Request, paramName string) (int64, error) {
 	}
 
 	return postId, nil
+}
+
+func HashToken(token string) string {
+	hash := sha256.Sum256([]byte(token))
+	hashedToken := hex.EncodeToString(hash[:])
+	return hashedToken
 }

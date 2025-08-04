@@ -1,9 +1,11 @@
 package handlers
 
 import (
-	"database/sql"
-	"errors"
+	"crypto/sha256"
+	"encoding/hex"
 	"net/http"
+
+	"github.com/google/uuid"
 
 	"github.com/PrinceNarteh/social/internal/config"
 	"github.com/PrinceNarteh/social/internal/models"
@@ -62,6 +64,7 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 // @Router       /auth/register [post]
 func (h *AuthHandler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	var user models.User
+	ctx := r.Context()
 
 	if err := utils.ParseJSON(w, r, &user); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
@@ -73,17 +76,17 @@ func (h *AuthHandler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := r.Context()
-
 	hashedPassword, err := utils.HashPassword(user.Password)
 	if err != nil {
 		utils.InternalServerError(w, r, err)
 		return
 	}
-
 	user.Password = hashedPassword
 
-	if err := h.store.User.CreateAndInvite(ctx, &user, "uuid", config.Envs.MailConfig.Exp); err != nil {
+	plainToken := uuid.New().String()
+	hashedToken := utils.HashToken(plainToken)
+
+	if err := h.store.User.CreateAndInvite(ctx, &user, hashedToken, config.Envs.MailConfig.Exp); err != nil {
 		switch err {
 		case store.ErrDuplicateEmail:
 			utils.WriteError(w, http.StatusBadRequest, err)
