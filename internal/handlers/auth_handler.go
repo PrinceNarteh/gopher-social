@@ -116,6 +116,13 @@ func (h *AuthHandler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	// send mail
 	if err := mailer.SendGridClient.Send(mailer.UserWelcomeTemplate, user.Username, user.Email, vars, !isProdEnv); err != nil {
+		utils.Logger.Errorw("error sending welcome email", "error", err)
+
+		// rollback user creation if email fails (SAGA pattern)
+		if err := h.store.User.Delete(ctx, user.ID); err != nil {
+			utils.Logger.Errorw("error deleting user", "error", err)
+		}
+
 		utils.InternalServerError(w, r, err)
 		return
 	}
