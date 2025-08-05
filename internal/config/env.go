@@ -19,9 +19,10 @@ func initConfig() *config {
 
 	return &config{
 		AppConfig: appConfig{
-			Env:     getEnvString("APP_ENV", "developement"),
-			Addr:    fmt.Sprintf(":%s", getEnvString("APP_HOST", "4000")),
-			Version: getEnvString("APP_VER", "0.0.2"),
+			Env:         getEnvString("APP_ENV", "developement"),
+			Addr:        fmt.Sprintf(":%s", getEnvString("APP_HOST", "4000")),
+			Version:     getEnvString("APP_VER", "0.0.2"),
+			FrontendURL: getEnvString("FRONTEND_URL", "http://localhost:4000"),
 		},
 		DBConfig: dbConfig{
 			DBAddr: getEnvString(
@@ -33,7 +34,9 @@ func initConfig() *config {
 			DBMaxIdleTime:  getEnvString("DB_MAX_IDLE_TIME", "10m"),
 		},
 		MailConfig: mailConfig{
-			Exp: time.Hour * 24 * 3, // 3 days
+			FromEmail: getEnvString("MAILER_FROM_EMAIL", "donprinart@gmail.com"),
+			ApiKey:    getEnvString("MAILER_API_KEY", "1234567890"),
+			Exp:       time.Hour * 24 * 3, // 3 days
 		},
 	}
 }

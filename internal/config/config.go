@@ -9,9 +9,10 @@ type config struct {
 }
 
 type appConfig struct {
-	Addr    string
-	Version string
-	Env     string
+	Addr        string
+	Version     string
+	Env         string
+	FrontendURL string
 }
 
 type dbConfig struct {
@@ -22,5 +23,7 @@ type dbConfig struct {
 }
 
 type mailConfig struct {
-	Exp time.Duration
+	FromEmail string
+	ApiKey    string
+	Exp       time.Duration
 }

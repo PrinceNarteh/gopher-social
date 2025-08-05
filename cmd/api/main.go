@@ -5,6 +5,7 @@ import (
 
 	"github.com/PrinceNarteh/social/internal/db"
 	"github.com/PrinceNarteh/social/internal/handlers"
+	"github.com/PrinceNarteh/social/internal/mailer"
 	"github.com/PrinceNarteh/social/internal/middleware"
 	"github.com/PrinceNarteh/social/internal/store"
 	"github.com/PrinceNarteh/social/internal/utils"
@@ -31,6 +32,7 @@ func main() {
 
 	// Initialize logger
 	utils.NewLogger()
+	mailer.NewSendGrid()
 
 	// Initialize the store, middleware and handlers
 	store := store.NewStorage(db)

@@ -1,13 +1,14 @@
 package handlers
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
+	"fmt"
 	"net/http"
+	"structs"
 
 	"github.com/google/uuid"
 
 	"github.com/PrinceNarteh/social/internal/config"
+	"github.com/PrinceNarteh/social/internal/mailer"
 	"github.com/PrinceNarteh/social/internal/models"
 	"github.com/PrinceNarteh/social/internal/store"
 	"github.com/PrinceNarteh/social/internal/utils"
@@ -98,5 +99,26 @@ func (h *AuthHandler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.WriteResponse(w, r, http.StatusCreated, user)
+	userWithToken := models.UserWithToken{
+		User:  user,
+		Token: plainToken,
+	}
+
+	activationURL := fmt.Sprintf("%s/confirm/%s", config.Envs.AppConfig.FrontendURL, plainToken)
+	isProdEnv := config.Envs.AppConfig.Env == "production"
+	vars := struct {
+		Username      string
+		ActivationURL string
+	}{
+		Username:      user.Username,
+		ActivationURL: activationURL,
+	}
+
+	// send mail
+	if err := mailer.SendGridClient.Send(mailer.UserWelcomeTemplate, user.Username, user.Email, vars, !isProdEnv); err != nil {
+		utils.InternalServerError(w, r, err)
+		return
+	}
+
+	utils.WriteResponse(w, r, http.StatusCreated, userWithToken)
 }

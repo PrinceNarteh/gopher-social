@@ -12,8 +12,7 @@ type User struct {
 	UpdatedAt string `json:"updatedAt"`
 }
 
-type UpdateUserDto struct {
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Username  string `json:"username"`
+type UserWithToken struct {
+	User  User
+	Token string
 }
